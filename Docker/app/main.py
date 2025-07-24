@@ -18,11 +18,6 @@ session = boto3.Session(
 ec2_client = session.client("ec2")
 elb_client = session.client("elbv2")
 
-# vpc_data= ""
-# lb_data= ""
-# ami_data= ""
-# html_template = ""
-
 @app.route("/")
 def home():
    # Fetch EC2 instances
@@ -38,14 +33,18 @@ def home():
            })
   
    # Fetch VPCs
+   vpcs = ec2_client.describe_vpcs()
    vpc_data = [{"VPC ID": vpc["VpcId"], "CIDR": vpc["CidrBlock"]} for vpc in vpcs["Vpcs"]]
-  
+
    # Fetch Load Balancers
+   lbs = elb_client.describe_load_balancers()
    lb_data = [{"LB Name": lb["LoadBalancerName"], "DNS Name": lb["DNSName"]} for lb in lbs["LoadBalancers"]]
-  
-   # Fetch AMIs (only owned by the account)
+
+   # Fetch AMIs (owned by this account)
+   amis = ec2_client.describe_images(Owners=["self"])
    ami_data = [{"AMI ID": ami["ImageId"], "Name": ami.get("Name", "N/A")} for ami in amis["Images"]]
-  
+
+
    # Render the result in a simple table
    html_template = """
    <html>
@@ -89,4 +88,4 @@ def home():
    return render_template_string(html_template, instance_data=instance_data, vpc_data=vpc_data, lb_data=lb_data, ami_data=ami_data)
 
 if __name__ == "__main__":
-   app.run(host="0.0.0.0", port=5001, debug=True)
+   app.run(host="0.0.0.0", port=5002, debug=True)
