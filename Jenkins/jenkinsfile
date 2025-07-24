@@ -2,8 +2,7 @@ pipeline {
     agent any
     
     environment {
-        DOCKERHUB_USERNAME = credentials('dockerhub-username')
-        DOCKERHUB_PASSWORD = credentials('dockerhub-password')
+        DOCKERHUB_CREDS = credentials('dockerhub-credentials')
         IMAGE_NAME = 'tfarin1000/flask-aws-monitor'
     }
     
@@ -15,7 +14,7 @@ pipeline {
         }
         
         stage('Parallel Checks') {
-           parallel {
+            parallel {
                 stage('Linting') {
                     steps {
                         echo 'TODO: Add linting steps for Python, Shell, and Dockerfile'
@@ -26,18 +25,18 @@ pipeline {
                         echo 'TODO: Add security scanning steps for dependencies and container security'
                     }
                 }
-           }
+            }
         }
         
         stage('Build Docker Image') {
             steps {
-                echo sh 'docker build -t $IMAGE_NAME .'
+                sh 'docker build -t $IMAGE_NAME Docker/'
             }
         }
         
         stage('Push to Docker Hub') {
             steps {
-                sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
+                sh 'echo $DOCKERHUB_CREDS_PSW | docker login -u $DOCKERHUB_CREDS_USR --password-stdin'
                 sh 'docker push $IMAGE_NAME'
             }
         }
