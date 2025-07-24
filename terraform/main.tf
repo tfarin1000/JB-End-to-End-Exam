@@ -7,4 +7,21 @@ resource "aws_instance" "builder" {
     tags = {
         Owner = "tal"
     }
+    provisioner "remote-exec" {
+      inline = [
+        "sudo apt update -y",
+        "sudo apt install -y docker.io",
+        "sudo systemctl enable docker",
+        "sudo systemctl start docker",
+        "sudo usermod -aG docker ubuntu" #maybe need to log out and in of the user
+        ]
+
+        
+        connection {
+            type        = "ssh"
+            user        = "ubuntu"
+            private_key = file("${path.module}/builder_key.pem")
+            host        = self.public_ip
+        }
+    }
 }
