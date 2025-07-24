@@ -1,0 +1,54 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKERHUB_USERNAME = credentials('dockerhub-username')
+        DOCKERHUB_PASSWORD = credentials('dockerhub-password')
+        IMAGE_NAME = 'tfarin1000/flask-aws-monitor'
+    }
+    
+    stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: 'main', url: 'https://github.com/tfarin1000/JB-End-to-End-Exam.git'
+            }
+        }
+        
+        stage('Parallel Checks') {
+           parallel {
+                stage('Linting') {
+                    steps {
+                        echo 'TODO: Add linting steps for Python, Shell, and Dockerfile'
+                    }
+                }
+                stage('Security Scan') {
+                    steps {
+                        echo 'TODO: Add security scanning steps for dependencies and container security'
+                    }
+                }
+           }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                echo sh 'docker build -t $IMAGE_NAME .'
+            }
+        }
+        
+        stage('Push to Docker Hub') {
+            steps {
+                sh 'echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin'
+                sh 'docker push $IMAGE_NAME'
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed! Check logs for details.'
+        }
+    }
+}
