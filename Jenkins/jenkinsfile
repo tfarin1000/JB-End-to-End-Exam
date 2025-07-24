@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/tfarin1000/JB-End-to-End-Exam.git'
+                git branch: 'feature-branch-part2', url: 'https://github.com/tfarin1000/JB-End-to-End-Exam.git'
             }
         }
         
